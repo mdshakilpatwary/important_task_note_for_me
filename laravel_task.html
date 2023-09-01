@@ -1,0 +1,486 @@
+### input Editor  ######
+
+    <textarea class="cleditor" name="" id="" cols="30" rows="10"></textarea>
+
+
+########github repository clone file run system start##########
+1.composer install/update
+2.composer dump-autoload
+3.php artisan config:clear
+4.npm install
+5.cp .env.example .env 
+6.php artisan key:generate
+7.php artisan serve
+
+#########github repository clone file run system end##########
+
+ 
+
+##### -----Social Login start ----######
+
+
+####### Social Login Route example #####
+Route::get('/socialite/create', [SocialController::class, 'create'])->name('socialite.create');
+Route::get('/sociallogin/store', [SocialController::class, 'login']);
+
+######## Social login Controller  Example  #########
+
+
+public function create(){
+	return Socialite::driver('google')->redirect();
+}
+
+public function login(){
+
+	$googleuser = Socialite::driver('google')->user();
+
+	$myUser = User::where('social_id',$googleuser->id)->first();
+	if(!empty($myUser)){
+    	Auth::login($myUser);
+
+    	return redirect('/dashboard');
+	}
+	else{
+    	$user =new User;
+    	$user->name = $googleuser->name;
+    	$user->email = $googleuser->email;
+    	$user->social_id = $googleuser->id;
+    	$user->pic =$googleuser->avatar;
+    	$user->update();
+    	$sid = $googleuser->id;
+    	return view('setpassword', compact('sid'));
+    	// Auth::login($user);
+
+    	// return redirect('/dashboard');
+	}
+
+}
+############ Social login end  --##########
+
+
+
+
+
+
+#####Change Password controler start###########
+
+	public function changePassword(){
+    	return view('admin.changepassword');
+	}
+	public function passwordupdate(Request $request){
+    	$request->validate([
+        	'old_password' => 'required',
+        	'new_password' => 'required',
+        	'confirmation_password' => 'required|same:new_password',
+    	],
+    	[
+        	'old_password.required' => 'your old password is required',
+        	'confirmation_password.required' => 'confirmation password is required',
+    	]);
+
+    	$oldpass =$request->old_password;
+    	$userOldPass =Auth::user()->password;
+    	if(Hash::check($oldpass,$userOldPass)){
+        	$findUser = User::find(Auth::user()->id);
+        	$findUser->password = bcrypt($request->new_password);
+        	$findUser->update();
+
+        	$notice = array(
+            	'type' => 'success',
+            	'message' => 'Password Changed successfully'
+        	);
+        	return redirect('/admin/dashboard')->with($notice);
+    	}
+    	else{
+        	$notice = array(
+            	'type' => 'error',
+            	'message' => 'old password not match'
+        	);
+        	return back()->with($notice);
+    	}
+	}
+}
+
+
+#####Change Password controler end#########
+
+
+
+
+
+
+
+
+
+
+
+#####Toster msg start#########
+
+
+  <script>
+  @if(Session::has('message'))
+  let type ="{{Session::get('type')}}";
+  switch (type) {
+	case 'success':
+      	toastr.success("{{ Session::get('message') }}");
+  	break;
+	case 'info':
+      	toastr.info("{{ Session::get('message') }}");
+   	 
+    	break;
+	case 'error':
+      	toastr.error("{{ Session::get('message') }}");
+   	 
+    	break;
+	case 'warning':
+      	toastr.warning("{{ Session::get('message') }}");
+    	break;
+
+  }
+  @endif
+  </script>
+ 
+  $notice = array(
+            	'type' => 'error',
+            	'message' => 'old password not match'
+        	);
+        	return back()->with($notice);
+
+   		 
+#####Toster msg end#########
+
+
+
+############## alert show system controller and blade #########
+ #Blade file —----------
+
+@if(session('status'))
+
+
+<div class="container py-5">
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Success</strong> {{ session('status')}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+
+@elseif(session('error'))
+<div class="container py-5">
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Success</strong> {{ session('error')}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+
+@endif
+
+########Msg alert hite time javascript code  —-------
+
+//Success and Error Message Timeout Code Start
+setTimeout(function() {
+    $('.alertsuccess').slideUp(1000);
+ },5000);
+
+
+setTimeout(function() {
+    $('.alerterror').slideUp(1000);
+ },10000);
+
+
+#Controller —-----------
+       
+ return back()->with('status', 'successfully updated done you product');
+
+
+
+
+
+
+############ end alert  ################
+
+
+
+
+#####Authenticatin role start #########
+
+#####Authentication middleware start #########
+
+
+public function handle(Request $request, Closure $next, $role): Response
+{
+
+
+    if($request->user()->role !== $role){
+        return redirect('dashboard');
+    }
+    return $next($request);
+}    
+
+
+
+
+
+    
+   	 
+#####Authentication contreoller start #########
+
+public function store(LoginRequest $request): RedirectResponse
+{
+    $request->authenticate();
+
+
+    $request->session()->regenerate();
+        $url ='';
+    if(Auth::user()->role ==='admin'){
+        $url ='admin/dashboard';
+    }
+    else if(Auth::user()->role ==='vandor'){
+        $url ='vendor/dashboard';
+    }
+    else if(Auth::user()->role === 'user'){
+        $url ='dashboard';
+    }
+
+
+    return redirect()->intended($url);
+}
+
+
+
+
+
+
+
+#####Authentication role end #########
+
+
+
+
+##### authenticate Login request  by email, Username, Number etc start  #########
+
+User model  r hash link korte hobe—------
+   
+
+
+ public function rules(): array{
+
+
+// change loging condition start—-----
+        return [
+            'login' => ['required', 'string',],
+            'password' => ['required', 'string'],
+        ];
+    }
+    /**
+     * Attempt to authenticate the request's credentials.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function authenticate(): void{
+        $this->ensureIsNotRateLimited();
+    // change loging condition start—-----
+        $user =User::where('email', $this->login)
+                        ->orWhere('username', $this->login)
+                        ->orWhere('phone', $this->login)
+                        ->first();
+
+
+    // change condition start—---------
+        if (!$user || !Hash::check($this->password, $user->password)) {
+            RateLimiter::hit($this->throttleKey());
+
+
+            throw ValidationException::withMessages([
+                'login' => trans('auth.failed'),
+            ]);
+        }
+    // change condition end—---------
+    // Change this line start—------
+        Auth::login($user, $this->boolean('remember'));
+
+
+       // Change this line end—---------
+        RateLimiter::clear($this->throttleKey());
+    }
+
+##### authenticate Login request system  by email, Username, Number etc end  ########
+#### On change file Image Jquery code start ############
+
+    <script>
+
+
+        $('.fileimage').change('.image',function(){
+            let reader =new FileReader();
+            let file =document.querySelector('.image').files[0];
+            reader.onload =function(e){
+                $(".changeImage").attr('src',e.target.result);
+            }
+            reader.readAsDataURL(file);
+        });
+
+
+
+
+    </script>
+
+#### On change file Image Jquery code end############
+
+
+
+
+################ Image save by controller code start ############
+
+
+####Link use system
+use Image;
+use File;
+use Illuminate\Support\Str;
+
+
+if($request->image){
+            if(File::exists(public_path('uploads/admin/'.$admin->pic))){
+                File::delete(public_path('uploads/admin/'.$admin->pic));
+            }
+            $image = $request->file('image');
+            $customName = rand().'.'.$image->getClientOriginalExtension();
+            $path = public_path('uploads/admin/'. $customName);
+            Image::make($image)->resize(300,300)->save($path);
+
+
+            $admin->pic = $customName ;
+
+
+        }
+
+
+
+################ Image save by controller code end############
+
+
+
+
+
+############### Laravel form validation and message start ###########
+
+ $request->validate([
+        'name' => 'required',
+        'email' => 'required',
+        'password' => 'required|min:8',
+        'cpassword' => 'required|same:password',
+    ],
+    [
+        'name.required' => 'Email is required',
+        'email.required' => 'Email is required',
+        'password.required' => 'password required and minimum 8 carechter',
+        'cpassword.required' => 'confirmation password is invalid',
+    ]);
+
+############### Laravel form validation and message end ###########
+
+
+
+
+####################Route grouping by middleware and controller Start ############
+
+Route::middleware('auth','role:vendor')->group(function () {
+    Route::controller(vendorUserController::class)->group(function () {
+        Route::get('admin/dashboard', 'index')->name('vendor.dashboard');
+   
+    });
+});
+
+
+####################Route grouping by middleware and controller end############
+
+
+
+
+########## Seeding system start ####################
+
+<?php
+
+
+namespace Database\Seeders;
+
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+class UserTblSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        DB::table('users')->insert([
+            // admin login data
+        [
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('111'),
+            'role' => 'admin',
+        ],
+        // Vendor login data
+        [
+            'name' => 'Vendor',
+            'email' => 'vendor@gmail.com',
+            'password' => Hash::make('222'),
+            'role' => 'vendor',
+
+
+        ],
+
+
+        // User login data
+        [
+            'name' => 'User',
+            'email' => 'user@gmail.com',
+            'password' => Hash::make('333'),
+            'role' => 'user',
+        ]
+
+
+
+
+        ]);
+    }
+}
+
+
+
+
+
+
+######### main database seeder ######
+
+        $this->call([UserTblSeeder::class]);
+
+
+############### end seed ###########
+
+
+########### Sub Category table system start ###########
+    {
+        Schema::create('sub_categories', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('cat_id')->unsigned();
+            $table->string('subcat_name');
+            $table->string('subcat_slug');
+            $table->string('subcat_image');
+            $table->foreign('cat_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->timestamps();
+        });
+    }
+	
+	
+########	<!--subcategory model --!>
+	  function category(){
+        return $this->belongsTo(Category::class, 'cat_id', 'id');
+     }
+
+########### Sub Category table system end###########
+
