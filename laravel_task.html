@@ -484,3 +484,9 @@ class UserTblSeeder extends Seeder
 
 ########### Sub Category table system end###########
 
+	
+#########Selected edit time part start #############
+<option value="{{ $category->id }}" {{ $subcat_data->category->id == $category->id ? 'selected' : '' }}>{{ $category->cat_name }}</option>
+#########Selected edit time part end #############
+
+
