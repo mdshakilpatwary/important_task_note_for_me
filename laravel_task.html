@@ -352,6 +352,17 @@ if($request->image){
 
         }
 
+###### altarnative way
+        if($request->file('subcat_image')){
+
+            if(File::exists(public_path('uploads/subcategory/' .$category->cat_image))){
+                File::delete(public_path('uploads/subcategory/' .$category->cat_image));
+            }
+            $image = $request->file('cat_image');
+            $customname='cat_'.rand().'.'. $image->getClientOriginalExtension();
+            $image->move('uploads/subcategory', $customname);
+            $subcategory->subcat_image = $customname;
+        }
 
 
 ################ Image save by controller code end############
