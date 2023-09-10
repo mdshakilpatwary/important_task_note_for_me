@@ -364,6 +364,24 @@ if($request->image){
             $subcategory->subcat_image = $customname;
         }
 
+	
+
+#######//   multiple image store
+	
+    if($request->file('group_p_image')){
+        $images=array();
+        $files = $request->file('group_p_image');
+        if($product->save()){
+            foreach($files as $file){
+                $customnamefile='gp_'.rand().'.'. $file->getClientOriginalExtension();
+                $images[]= $customnamefile;
+               
+                $file->move('uploads/product/product_group', $customnamefile);
+        
+               
+    
+            }
+        }
 
 ################ Image save by controller code end############
 
