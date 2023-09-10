@@ -519,3 +519,13 @@ class UserTblSeeder extends Seeder
 #########Selected edit time part end #############
 
 
+	
+########## array data show part start #############
+@foreach(json_decode($color->color) as $colors)
+    <span class=" btn btn-sm btn-info">{{$colors->value}}</span>
+@endforeach
+
+########## array data show part end #############
+
+
+
