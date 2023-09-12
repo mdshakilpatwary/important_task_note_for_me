@@ -382,7 +382,23 @@ if($request->image){
     
             }
         }
+	
+#########multiple image delete 
+	    foreach(explode("|",$multiple_image>group_image) as $g_image){
+        
+	    if(File::exists(public_path('uploads/product/product_group/' . $g_image))){
+	        File::delete(public_path('uploads/product/product_group/' . $g_image));
+	    }
+	    }
 
+
+	
+######show multiple image blade
+	
+	     @foreach(explode('|',$product->group_p_image) as $gimage)
+	    <img src="{{empty($gimage)? asset('uploads/product/product_group/empty.png') : asset('uploads/product/product_group/'.$gimage) }}" alt="" width="50" height="50" >
+	    @endforeach
+	
 ################ Image save by controller code end############
 
 
@@ -506,7 +522,7 @@ class UserTblSeeder extends Seeder
     }
 	
 	
-########	<!--subcategory model --!>
+########<!--subcategory model --!>
 	  function category(){
         return $this->belongsTo(Category::class, 'cat_id', 'id');
      }
