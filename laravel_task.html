@@ -544,5 +544,16 @@ class UserTblSeeder extends Seeder
 
 ########## array data show part end #############
 
+	
+
+######****** All blade page e auto data pathaite hole provider e giye app service provide e kaj korte hobe #############
+	
+	 public function boot(): void
+    {
+        View::share('categories', $categories = Category::where('cat_status',1)->get());
+    }
+	
+#################  All blade page e auto data pathaite hole  ******end ######################
+
 
 
