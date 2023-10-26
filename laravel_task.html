@@ -554,6 +554,27 @@ class UserTblSeeder extends Seeder
     }
 	
 #################  All blade page e auto data pathaite hole  ******end ######################
+	
 
+######################## product count number show system  start#################
+
+	
+<!-- ***********1st product model part  **************** -->
+public static function catProductCount($cat_id){
+        $cat_p_count = Product::where('cat_id', $cat_id)->where('status',1)->count();
+        return $cat_p_count;
+     }
+     public static function subcatProductCount($brand_id){
+        $brand_p_count = Product::where('brand_id', $brand_id)->where('status',1)->count();
+        return $brand_p_count;
+     }
+	
+<!-********* 2nd show blade part************** -->
+@php
+$brand_count =App\Models\Product::brandProductCount($brand->id);	
+@endphp
+{{$brand_count}}
+
+######################## product count number show system  end#################
 
 
